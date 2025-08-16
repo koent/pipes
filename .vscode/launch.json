@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: game Debug",
+            "cwd": "${workspaceFolder}/Pipes/bin/Debug/net8.0/",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/Pipes/bin/Debug/net8.0/Pipes",
+            "console": "integratedTerminal",
+            "preLaunchTask": "build"
+        }
+    ]
+}
