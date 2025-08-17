@@ -87,7 +87,7 @@ public class PipesWindow : GameWindow
         turnTimer++;
 
 
-        Console.Write($"\rTurn timer: {turnTimer:D4}, Direction: {State.Direction.ToString()[0]}, FPS: {1/args.Time:F2}, Vertex array length: {State.VertexArrayLength:D4}, Index array length: {State.IndexArrayLength:D4}");
+        Console.Write($"\rTurn timer: {turnTimer:D4}, FPS: {1/args.Time:F2}, Vertex array length: {State.VertexArrayLength:D4}, Index array length: {State.IndexArrayLength:D4}");
         Console.Out.Flush();
 
         GL.BufferData(BufferTarget.ArrayBuffer, State.VertexArrayLength * sizeof(float), State.Vertices, BufferUsageHint.StaticDraw);
