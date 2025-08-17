@@ -5,22 +5,22 @@ namespace Pipes;
 
 public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 {
-    private const int FloatsPerVertex = 6;
     private const int UIntsPerTriangle = 3;
     private const int SpherePrecision = 24;
 
-    public float[] Vertices { get; } = new float[maxNofVerticesAndTriangles * FloatsPerVertex];
+    private readonly VertexArray _vertices = new(maxNofVerticesAndTriangles);
+    public float[] Vertices => _vertices.Vertices;
+    public int VertexArrayLength => _vertices.Length;
+
     public uint[] Indices { get; } = new uint[maxNofVerticesAndTriangles * UIntsPerTriangle];
 
-    public uint NofVertices;
     public uint NofTriangles;
 
-    public int VertexArrayLength => FloatsPerVertex * (int)NofVertices;
     public int IndexArrayLength => UIntsPerTriangle * (int)NofTriangles;
 
     public float Scale { get; private set; } = 1.0f; // In X direction
 
-    private bool Started => NofVertices > 0;
+    private bool Started => _vertices.Length > 0;
     public Vector2 Position { get; set; }
     private Vector2 Velocity { get; set; }
     private Color Color { get; set; }
@@ -31,17 +31,18 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 
     public void Clear(float? newScale = null)
     {
-        NofVertices = 0;
         NofTriangles = 0;
 
         if (newScale.HasValue)
         {
             Scale = newScale.Value;
         }
+
+        _vertices.Clear(Scale);
     }
 
     public bool CanStartPipe()
-        => NofVertices + 4 <= maxNofVerticesAndTriangles
+        => _vertices.CanAdd(4)
         && NofTriangles + 2 <= maxNofVerticesAndTriangles;
 
     public void StartPipe(Direction direction, Vector2 position, float hue)
@@ -62,26 +63,13 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 
         Vector2 pipeOffset = direction is Direction.North or Direction.South ? (pipeWidth, 0) : (0, pipeWidth);
 
-        var begin0 = AddVertex(position - pipeOffset);
-        var begin1 = AddVertex(position + pipeOffset);
-        var begin2 = AddVertex(position - pipeOffset);
-        var begin3 = AddVertex(position + pipeOffset);
+        var begin0 = _vertices.Add(position - pipeOffset, Color);
+        var begin1 = _vertices.Add(position + pipeOffset, Color);
+        var begin2 = _vertices.Add(position - pipeOffset, Color);
+        var begin3 = _vertices.Add(position + pipeOffset, Color);
 
         AddTriangle(begin0, begin1, begin2);
         AddTriangle(begin1, begin2, begin3);
-    }
-
-    private uint AddVertex(Vector2 position)
-    {
-        Vertices[FloatsPerVertex * NofVertices + VertexProperty.X] = position.X * Scale;
-        Vertices[FloatsPerVertex * NofVertices + VertexProperty.Y] = position.Y;
-        Vertices[FloatsPerVertex * NofVertices + VertexProperty.Z] = 0.0f;
-
-        Vertices[FloatsPerVertex * NofVertices + VertexProperty.R] = Color.Red;
-        Vertices[FloatsPerVertex * NofVertices + VertexProperty.G] = Color.Green;
-        Vertices[FloatsPerVertex * NofVertices + VertexProperty.B] = Color.Blue;
-
-        return NofVertices++;
     }
 
     private uint AddTriangle(uint vertex0, uint vertex1, uint vertex2)
@@ -94,7 +82,7 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
     }
 
     public bool CanTurn()
-        => NofVertices + SpherePrecision + 1 + 4 <= maxNofVerticesAndTriangles
+        => _vertices.CanAdd(SpherePrecision + 1 + 4)
         && NofTriangles + SpherePrecision + 2 <= maxNofVerticesAndTriangles;
 
     public void Turn(TurnDirection turnDirection, bool bigSphere)
@@ -110,11 +98,11 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 
     private void CreateSphere(Vector2 position, float radius)
     {
-        var center = AddVertex(position);
+        var center = _vertices.Add(position, Color);
         var circle = Enumerable.Range(0, SpherePrecision)
             .Select(i => i * 2.0f * MathF.PI / SpherePrecision)
             .Select(angle => new Vector2(radius * MathF.Cos(angle), radius * MathF.Sin(angle)))
-            .Select(offset => AddVertex(position + offset))
+            .Select(offset => _vertices.Add(position + offset, Color))
             .ToList();
 
         for (int i = 0; i < SpherePrecision - 1; i++)
@@ -131,10 +119,7 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 
         Position += Velocity;
 
-        Vertices[FloatsPerVertex * (NofVertices - 2) + VertexProperty.X] += Velocity.X * Scale;
-        Vertices[FloatsPerVertex * (NofVertices - 2) + VertexProperty.Y] += Velocity.Y;
-
-        Vertices[FloatsPerVertex * (NofVertices - 1) + VertexProperty.X] += Velocity.X * Scale;
-        Vertices[FloatsPerVertex * (NofVertices - 1) + VertexProperty.Y] += Velocity.Y;
+        _vertices.Move(2, Velocity);
+        _vertices.Move(1, Velocity);
     }
 }
