@@ -1,4 +1,4 @@
-namespace Pipes;
+namespace Pipes.Pipes2D;
 
 public enum Direction { North, East, South, West };
 

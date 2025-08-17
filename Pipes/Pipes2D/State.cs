@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Pipes.Structures;
 
 namespace Pipes.Pipes2D;
 

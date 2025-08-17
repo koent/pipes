@@ -1,4 +1,4 @@
-namespace Pipes;
+namespace Pipes.Structures;
 
 public struct Vector2(float x, float y)
 {

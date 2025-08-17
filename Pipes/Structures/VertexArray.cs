@@ -1,4 +1,4 @@
-namespace Pipes;
+namespace Pipes.Structures;
 
 public class VertexArray(int maxNofVertices)
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Pipes;
+namespace Pipes.Structures;
 
 public struct Color(float red, float green, float blue)
 {
