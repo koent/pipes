@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Pipes.Extensions;
 
 namespace Pipes;
 
@@ -63,7 +64,7 @@ public class PipesWindow : GameWindow
     {
         base.OnUpdateFrame(args);
 
-        if (turnTimer >= 16 && Random.Next() % 16 == 0)
+        if (turnTimer >= 8 && Random.NextBool(16))
         {
             if (!State.CanTurn())
             {
@@ -103,7 +104,7 @@ public class PipesWindow : GameWindow
     {
         var x = 2 * Random.NextSingle() - 1;
         var y = 2 * Random.NextSingle() - 1;
-        var direction = (Direction)(Random.Next() % 4);
+        var direction = Random.NextEnum<Direction>();
         var hue = 2 * MathF.PI * Random.NextSingle();
 
         State.StartPipe(direction, (x, y), hue);
@@ -111,10 +112,10 @@ public class PipesWindow : GameWindow
 
     private void RandomTurn()
     {
-        var turnDirection = Random.Next() % 2 == 0 ? TurnDirection.Left : TurnDirection.Right;
-        var sphere = Random.Next() % 8 == 0;
+        var turnDirection = Random.NextEnum<TurnDirection>();
+        var bigSphere = Random.NextBool(4);
 
-        State.Turn(turnDirection, sphere);
+        State.Turn(turnDirection, bigSphere);
 
         turnTimer = 0;
     }

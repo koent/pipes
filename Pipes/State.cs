@@ -97,12 +97,12 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
         => NofVertices + SpherePrecision + 1 + 4 <= maxNofVerticesAndTriangles
         && NofTriangles + SpherePrecision + 2 <= maxNofVerticesAndTriangles;
 
-    public void Turn(TurnDirection turnDirection, bool sphere)
+    public void Turn(TurnDirection turnDirection, bool bigSphere)
     {
         if (!Started) throw new InvalidOperationException("Start a pipe first");
         if (!CanTurn()) throw new InvalidOperationException("Not enough space to turn");
 
-        CreateSphere(Position, sphere ? 2.0f * pipeWidth : pipeWidth);
+        CreateSphere(Position, bigSphere ? 2.0f * pipeWidth : pipeWidth);
 
         var direction = (Direction)((4 + (int)Direction + (int)turnDirection) % 4);
         StartPipe(direction, Position, Hue);
