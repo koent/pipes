@@ -20,24 +20,22 @@ public class VertexArray(int maxNofVertices)
 
     public bool CanAdd(int number = 1) => _nofVertices + number <= maxNofVertices;
 
-    public uint Add(Vertex vertex) => Add(vertex.Position, vertex.Color);
-
     public uint Add(Vector2 position, Color color)
     {
-        _vertices[Length + Vertex.Property.X] = position.X * _scale;
-        _vertices[Length + Vertex.Property.Y] = position.Y;
-        _vertices[Length + Vertex.Property.Z] = 0.0f;
+        _vertices[Length + VertexProperty.X] = position.X * _scale;
+        _vertices[Length + VertexProperty.Y] = position.Y;
+        _vertices[Length + VertexProperty.Z] = 0.0f;
 
-        _vertices[Length + Vertex.Property.Red] = color.Red;
-        _vertices[Length + Vertex.Property.Green] = color.Green;
-        _vertices[Length + Vertex.Property.Blue] = color.Blue;
+        _vertices[Length + VertexProperty.Red] = color.Red;
+        _vertices[Length + VertexProperty.Green] = color.Green;
+        _vertices[Length + VertexProperty.Blue] = color.Blue;
 
         return _nofVertices++;
     }
 
     public void Move(uint fromBack, Vector2 velocity)
     {
-        _vertices[FloatsPerVertex * (_nofVertices - fromBack) + Vertex.Property.X] += velocity.X * _scale;
-        _vertices[FloatsPerVertex * (_nofVertices - fromBack) + Vertex.Property.Y] += velocity.Y;
+        _vertices[FloatsPerVertex * (_nofVertices - fromBack) + VertexProperty.X] += velocity.X * _scale;
+        _vertices[FloatsPerVertex * (_nofVertices - fromBack) + VertexProperty.Y] += velocity.Y;
     }
 }
