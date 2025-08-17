@@ -5,9 +5,10 @@ namespace Pipes.Pipes2D;
 
 public class Controller
 {
-    private readonly State _state = new(300, 0.02f, 0.05f);
+    private readonly State _state = new(1000, 0.02f, 0.05f);
     private readonly Random _random = new();
     private int _turnTimer = 0;
+    private float _scale = 1.0f;
 
     public void OnLoad()
     {
@@ -28,6 +29,7 @@ public class Controller
 
     public void Restart(float scale)
     {
+        _scale = scale;
         _state.Clear(scale);
         StartRandomPipe();
     }
@@ -44,7 +46,7 @@ public class Controller
         var direction = _random.NextEnum<Direction>();
         var hue = 2 * MathF.PI * _random.NextSingle();
 
-        _state.StartPipe(direction, (x, y), hue);
+        _state.StartPipe(direction, (x / _scale, y), hue);
     }
 
     private void RandomTurn()
