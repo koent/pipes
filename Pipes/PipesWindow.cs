@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Pipes.Extensions;
+using Pipes.Pipes2D;
 
 namespace Pipes;
 
@@ -14,23 +14,19 @@ public class PipesWindow : GameWindow
         UpdateFrequency = 60;
     }
 
-    private readonly State State = new(800, 0.02f, 0.05f);
-
-    private readonly Random Random = new();
-
-    private int turnTimer = 0;
+    private readonly Controller _controller = new();
 
     protected override void OnLoad()
     {
-        StartRandomPipe();
-
         base.OnLoad();
+
+        _controller.OnLoad();
 
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         VertexBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, State.VertexArrayLength * sizeof(float), State.Vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, _controller.VertexArrayLength * sizeof(float), _controller.Vertices, BufferUsageHint.StaticDraw);
 
         VertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(VertexArrayObject);
@@ -42,7 +38,7 @@ public class PipesWindow : GameWindow
 
         ElementBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, State.IndexArrayLength * sizeof(uint), State.Indices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, _controller.IndexArrayLength * sizeof(uint), _controller.Indices, BufferUsageHint.StaticDraw);
 
         Shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
     }
@@ -55,7 +51,7 @@ public class PipesWindow : GameWindow
 
         Shader.Use();
         GL.BindVertexArray(VertexArrayObject);
-        GL.DrawElements(BeginMode.Triangles, State.IndexArrayLength, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(BeginMode.Triangles, _controller.IndexArrayLength, DrawElementsType.UnsignedInt, 0);
 
         SwapBuffers();
     }
@@ -64,34 +60,13 @@ public class PipesWindow : GameWindow
     {
         base.OnUpdateFrame(args);
 
-        if (turnTimer >= 8 && Random.NextBool(16))
-        {
-            if (!State.CanTurn())
-            {
-                State.Clear();
-                StartRandomPipe();
-            }
+        _controller.OnUpdateFrame();
 
-            RandomTurn();
-        }
-
-        if (State.OutOfBounds)
-        {
-            if (!State.CanStartPipe())
-                State.Clear();
-
-            StartRandomPipe();
-        }
-
-        State.Step();
-        turnTimer++;
-
-
-        Console.Write($"\rTurn timer: {turnTimer:D4}, FPS: {1/args.Time:F2}, Vertex array length: {State.VertexArrayLength:D4}, Index array length: {State.IndexArrayLength:D4}");
+        Console.Write($"\rFPS: {1/args.Time:F2}, Vertex array length: {_controller.VertexArrayLength:D4}, Index array length: {_controller.IndexArrayLength:D4}, {_controller}");
         Console.Out.Flush();
 
-        GL.BufferData(BufferTarget.ArrayBuffer, State.VertexArrayLength * sizeof(float), State.Vertices, BufferUsageHint.StaticDraw);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, State.IndexArrayLength * sizeof(uint), State.Indices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, _controller.VertexArrayLength * sizeof(float), _controller.Vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, _controller.IndexArrayLength * sizeof(uint), _controller.Indices, BufferUsageHint.StaticDraw);
 
         if (KeyboardState.IsKeyDown(Keys.Escape))
         {
@@ -100,32 +75,11 @@ public class PipesWindow : GameWindow
         }
     }
 
-    private void StartRandomPipe()
-    {
-        var x = 2 * Random.NextSingle() - 1;
-        var y = 2 * Random.NextSingle() - 1;
-        var direction = Random.NextEnum<Direction>();
-        var hue = 2 * MathF.PI * Random.NextSingle();
-
-        State.StartPipe(direction, (x, y), hue);
-    }
-
-    private void RandomTurn()
-    {
-        var turnDirection = Random.NextEnum<TurnDirection>();
-        var bigSphere = Random.NextBool(4);
-
-        State.Turn(turnDirection, bigSphere);
-
-        turnTimer = 0;
-    }
-
     protected override void OnFramebufferResize(FramebufferResizeEventArgs args)
     {
         base.OnFramebufferResize(args);
 
-        State.Clear((float)args.Height / args.Width);
-        StartRandomPipe();
+        _controller.Restart((float)args.Height / args.Width);
 
         GL.Viewport(0, 0, args.Width, args.Height);
     }

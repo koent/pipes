@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Pipes;
+namespace Pipes.Pipes2D;
 
 public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 {
