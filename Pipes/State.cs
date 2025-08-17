@@ -5,18 +5,15 @@ namespace Pipes;
 
 public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 {
-    private const int UIntsPerTriangle = 3;
     private const int SpherePrecision = 24;
 
     private readonly VertexArray _vertices = new(maxNofVerticesAndTriangles);
     public float[] Vertices => _vertices.Vertices;
     public int VertexArrayLength => _vertices.Length;
 
-    public uint[] Indices { get; } = new uint[maxNofVerticesAndTriangles * UIntsPerTriangle];
-
-    public uint NofTriangles;
-
-    public int IndexArrayLength => UIntsPerTriangle * (int)NofTriangles;
+    private readonly TriangleArray _triangles = new(maxNofVerticesAndTriangles);
+    public uint[] Indices => _triangles.Indices;
+    public int IndexArrayLength => _triangles.Length;
 
     public float Scale { get; private set; } = 1.0f; // In X direction
 
@@ -31,19 +28,18 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 
     public void Clear(float? newScale = null)
     {
-        NofTriangles = 0;
-
         if (newScale.HasValue)
         {
             Scale = newScale.Value;
         }
 
         _vertices.Clear(Scale);
+        _triangles.Clear();
     }
 
     public bool CanStartPipe()
         => _vertices.CanAdd(4)
-        && NofTriangles + 2 <= maxNofVerticesAndTriangles;
+        && _triangles.CanAdd(2);
 
     public void StartPipe(Direction direction, Vector2 position, float hue)
     {
@@ -68,22 +64,13 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
         var begin2 = _vertices.Add(position - pipeOffset, Color);
         var begin3 = _vertices.Add(position + pipeOffset, Color);
 
-        AddTriangle(begin0, begin1, begin2);
-        AddTriangle(begin1, begin2, begin3);
-    }
-
-    private uint AddTriangle(uint vertex0, uint vertex1, uint vertex2)
-    {
-        Indices[UIntsPerTriangle * NofTriangles + 0] = vertex0;
-        Indices[UIntsPerTriangle * NofTriangles + 1] = vertex1;
-        Indices[UIntsPerTriangle * NofTriangles + 2] = vertex2;
-
-        return NofTriangles++;
+        _triangles.Add(begin0, begin1, begin2);
+        _triangles.Add(begin1, begin2, begin3);
     }
 
     public bool CanTurn()
         => _vertices.CanAdd(SpherePrecision + 1 + 4)
-        && NofTriangles + SpherePrecision + 2 <= maxNofVerticesAndTriangles;
+        && _triangles.CanAdd(SpherePrecision + 2);
 
     public void Turn(TurnDirection turnDirection, bool bigSphere)
     {
@@ -107,10 +94,10 @@ public class State(int maxNofVerticesAndTriangles, float pipeWidth, float speed)
 
         for (int i = 0; i < SpherePrecision - 1; i++)
         {
-            AddTriangle(center, circle[i], circle[i + 1]);
+            _triangles.Add(center, circle[i], circle[i + 1]);
         }
 
-        AddTriangle(center, circle[^1], circle[0]);
+        _triangles.Add(center, circle[^1], circle[0]);
     }
 
     public void Step()
