@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Pipes.Pipes2D;
 
 namespace Pipes;
 
@@ -14,7 +13,7 @@ public class PipesWindow : GameWindow
         UpdateFrequency = 60;
     }
 
-    private readonly Controller _controller = new();
+    private readonly IPipesController _controller = new Pipes2D.Controller();
 
     protected override void OnLoad()
     {
@@ -40,7 +39,11 @@ public class PipesWindow : GameWindow
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
         GL.BufferData(BufferTarget.ElementArrayBuffer, _controller.IndexArrayLength * sizeof(uint), _controller.Indices, BufferUsageHint.StaticDraw);
 
-        Shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
+        Shader = new Shader
+        (
+            $"Shaders/{_controller.ShaderName}.vert",
+            $"Shaders/{_controller.ShaderName}.frag"
+        );
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)

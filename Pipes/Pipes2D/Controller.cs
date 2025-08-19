@@ -3,7 +3,7 @@ using Pipes.Extensions;
 
 namespace Pipes.Pipes2D;
 
-public class Controller
+public class Controller : IPipesController
 {
     private readonly State _state = new(1000, 0.02f, 0.05f);
     private readonly Random _random = new();
@@ -69,4 +69,5 @@ public class Controller
     public int VertexArrayLength => _state.VertexArrayLength;
     public uint[] Indices => _state.Indices;
     public int IndexArrayLength => _state.IndexArrayLength;
+    public string ShaderName => "pipes2d";
 }
