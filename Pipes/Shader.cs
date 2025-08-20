@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Pipes;
 
@@ -35,6 +36,13 @@ public class Shader : IDisposable
     public void Use()
     {
         GL.UseProgram(Handle);
+    }
+
+    public void SetMatrix4(string name, Matrix4 matrix)
+    {
+        GL.UseProgram(Handle);
+        int location = GL.GetUniformLocation(Handle, name);
+        GL.UniformMatrix4(location, true, ref matrix);
     }
 
     private static int Compile(ShaderType type, string path)
