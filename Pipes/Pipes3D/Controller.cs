@@ -5,7 +5,7 @@ namespace Pipes.Pipes3D;
 
 public class Controller : IPipesController
 {
-    private readonly State _state = new(1000, 0.02f, 0.05f);
+    private readonly State _state = new(4000, 0.03f, 0.05f);
     private readonly Random _random = new();
     private int _turnTimer = 0;
     private float _scale = 1.0f;

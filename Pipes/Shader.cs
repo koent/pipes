@@ -45,6 +45,13 @@ public class Shader : IDisposable
         GL.UniformMatrix4(location, true, ref matrix);
     }
 
+    public void SetVector3(string name, Vector3 vector)
+    {
+        GL.UseProgram(Handle);
+        int location = GL.GetUniformLocation(Handle, name);
+        GL.Uniform3(location, ref vector);
+    }
+
     private static int Compile(ShaderType type, string path)
     {
         var shaderSource = File.ReadAllText(path);
