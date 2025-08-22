@@ -96,6 +96,8 @@ public class PipesWindow : GameWindow
                   * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30));
         Shader.SetMatrix4("model", model);
 
+        var normalModel = model.Inverted().Transposed();
+        Shader.SetMatrix4("normalModel", normalModel);
 
         SwapBuffers();
     }
