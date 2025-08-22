@@ -77,8 +77,7 @@ public class PipesWindow : GameWindow
         Shader.SetMatrix4("view", view);
         Shader.SetVector3("viewPos", cameraPosition);
 
-        Shader.SetVector3("lightPos", new Vector3(3f, 0f, 3f));
-
+        Shader.SetVector3("lightDir", new Vector3(3f, 0f, 3f).Normalized());
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
@@ -93,7 +92,8 @@ public class PipesWindow : GameWindow
 
 
         _time += _timeDirection * 8.0f * (float)args.Time;
-        // var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_time));
+        // var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_time))
+        //           * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30));
         var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(45))
                   * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30));
         Shader.SetMatrix4("model", model);
