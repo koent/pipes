@@ -26,6 +26,8 @@ public class PipesWindow : GameWindow
     private float _time = 0.0f;
     private float _timeDirection;
 
+    private const float fovDegrees = 45.0f;
+
     protected override void OnLoad()
     {
         base.OnLoad();
@@ -67,13 +69,13 @@ public class PipesWindow : GameWindow
             $"Shaders/{_controller.ShaderName}.frag"
         );
 
-        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), 1f, 0.1f, 100.0f);
+        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), 1f, 0.1f, 100.0f);
         Shader.SetMatrix4("projection", projection);
 
 
 
         var cameraPosition = new Vector3(0.0f, 0.0f, 4.0f);
-        var view = Matrix4.CreateTranslation(cameraPosition.X, cameraPosition.Y, -cameraPosition.Z);
+        var view = Matrix4.CreateTranslation(-cameraPosition);
         Shader.SetMatrix4("view", view);
         Shader.SetVector3("viewPos", cameraPosition);
 
@@ -94,8 +96,8 @@ public class PipesWindow : GameWindow
         _time += _timeDirection * 8.0f * (float)args.Time;
         // var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_time))
         //           * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30));
-        var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(45))
-                  * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30));
+        var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(37))
+                  * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(5));
         Shader.SetMatrix4("model", model);
 
         var normalModel = model.Inverted().Transposed();
@@ -131,7 +133,7 @@ public class PipesWindow : GameWindow
         var aspectRatio = (float)args.Width / args.Height;
         _controller.Restart(aspectRatio);
 
-        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), aspectRatio, 0.1f, 100.0f);
+        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), aspectRatio, 0.1f, 100.0f);
         Shader.SetMatrix4("projection", projection);
 
         GL.Viewport(0, 0, args.Width, args.Height);
