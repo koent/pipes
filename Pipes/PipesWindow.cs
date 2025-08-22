@@ -72,10 +72,12 @@ public class PipesWindow : GameWindow
 
 
 
-        var view = Matrix4.CreateTranslation(0.0f, 0.0f, -4.0f);
+        var cameraPosition = new Vector3(0.0f, 0.0f, 4.0f);
+        var view = Matrix4.CreateTranslation(cameraPosition.X, cameraPosition.Y, -cameraPosition.Z);
         Shader.SetMatrix4("view", view);
+        Shader.SetVector3("viewPos", cameraPosition);
 
-        Shader.SetVector3("lightPos", new Vector3(3f, 3f, 3f));
+        Shader.SetVector3("lightPos", new Vector3(3f, 0f, 3f));
 
     }
 
