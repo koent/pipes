@@ -7,7 +7,7 @@ namespace Pipes.Pipes3D;
 
 public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed)
 {
-    private const int SpherePrecision = 24;
+    private const int SpherePrecision = 12;
 
     private const int PipePrecision = 12;
 
@@ -70,8 +70,8 @@ public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed
         for (int i = 0; i < 2 * PipePrecision; i++)
         {
             var offset = direction is Direction.North or Direction.South
-                ? Matrix3.CreateRotationY(i * MathF.Tau / PipePrecision) * new Vector3(pipeRadius, 0, pipeRadius)
-                : Matrix3.CreateRotationX(i * MathF.Tau / PipePrecision) * new Vector3(0, pipeRadius, pipeRadius);
+                ? Matrix3.CreateRotationY(i * MathF.Tau / PipePrecision) * new Vector3(pipeRadius, 0, pipeRadius) / MathF.Sqrt(2)
+                : Matrix3.CreateRotationX(i * MathF.Tau / PipePrecision) * new Vector3(0, pipeRadius, pipeRadius) / MathF.Sqrt(2);
 
             var normal = offset.Normalized();
 
@@ -87,20 +87,24 @@ public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed
     }
 
 
-    public bool CanTurn() => _vertices.CanAdd(SpherePrecision + 1 + 2 * PipePrecision) && _triangles.CanAdd(SpherePrecision + 2 * PipePrecision);
+    // public bool CanTurn() => _vertices.CanAdd(SpherePrecision + 1 + 2 * PipePrecision) && _triangles.CanAdd(SpherePrecision + 2 * PipePrecision);
+    public bool CanTurn() => _vertices.CanAdd((SpherePrecision + 1) * (SpherePrecision / 2 + 1) + 2 * PipePrecision)
+    && _triangles.CanAdd(2 * (SpherePrecision - 1) * (SpherePrecision / 2 - 1) + 2 * PipePrecision);
+
 
     public void Turn(TurnDirection turnDirection, bool bigSphere)
     {
         if (!Started) throw new InvalidOperationException("Start a pipe first");
         if (!CanTurn()) throw new InvalidOperationException("Not enough space to turn");
 
-        CreateSphere(_position, bigSphere ? 2.0f * pipeRadius : pipeRadius);
+        // CreateDisk(_position, bigSphere ? 2.0f * pipeRadius : pipeRadius);
+        CreateSphere(_position, bigSphere ? 1.5f * pipeRadius : pipeRadius);
 
         var direction = (Direction)((4 + (int)_direction + (int)turnDirection) % 4);
         StartPipe(direction, _position, _hue, _depth);
     }
 
-    private void CreateSphere(Vector3 position, float radius)
+    private void CreateDisk(Vector3 position, float radius)
     {
         var fakeNormal = new Vector3(0, 0, 1);
         var center = _vertices.Add(position, _color, fakeNormal);
@@ -116,6 +120,59 @@ public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed
         }
 
         _triangles.Add(center, circle[^1], circle[0]);
+    }
+
+    private void CreateSphere(Vector3 position, float radius)
+    {
+        // https://www.songho.ca/opengl/gl_sphere.html#webgl_sphere
+        var firstVertex = _vertices.NofVertices;
+
+        const int sectorCount = SpherePrecision;
+        const int stackCount = SpherePrecision / 2;
+
+        const float sectorStep = MathF.Tau / sectorCount;
+        const float stackStep = MathF.PI / stackCount;
+
+        float sectorAngle, stackAngle;
+
+        float x, y, z, xy;
+
+        for (int i = 0; i <= stackCount; i++)
+        {
+            stackAngle = MathF.PI / 2 - i * stackStep;
+            xy = MathF.Cos(stackAngle);
+            z = MathF.Sin(stackAngle);
+
+            for (int j = 0; j <= sectorCount; j++)
+            {
+                sectorAngle = j * sectorStep;
+
+                x = xy * MathF.Cos(sectorAngle);
+                y = xy * MathF.Sin(sectorAngle);
+                var xyz = new Vector3(x, y, z);
+                _vertices.Add(position + radius * xyz, _color, xyz);
+            }
+        }
+
+        uint k1, k2;
+        for (uint i = 0; i < stackCount; i++)
+        {
+            k1 = i * (sectorCount + 1); // Beginning of current stack
+            k2 = k1 + sectorCount + 1;  // Beginning of next stack
+
+            for (uint j = 0; j < sectorCount; j++, k1++, k2++)
+            {
+                if (i != 0)
+                {
+                    _triangles.Add(firstVertex + k1, firstVertex + k2, firstVertex + k1 + 1);
+                }
+
+                if (i != (stackCount - 1))
+                {
+                    _triangles.Add(firstVertex + k1 + 1, firstVertex + k2, firstVertex + k2 + 1);
+                }
+            }
+        }
     }
 
     public void Step()
