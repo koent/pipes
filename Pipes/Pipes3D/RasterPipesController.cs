@@ -8,13 +8,13 @@ namespace Pipes.Pipes3D;
 
 public class RasterPipesController
 {
-    private const int XZ = 19;
-    private const int Y = 11;
+    private int _nofPointsXZ;
+    private int _nofPointsY;
 
     private const int SlowdownFactor = 2;
     private const float Speed = 1.0f / SlowdownFactor;
 
-    private readonly RasterState _state = new(XZ, Y);
+    private readonly RasterState _state = new();
     private readonly Random _random = new();
 
     private int _time = 0;
@@ -78,9 +78,11 @@ public class RasterPipesController
         return false;
     }
 
-    public void Restart()
+    public void Restart(int rasterWidth, int rasterHeight)
     {
-        _state.Clear();
+        _nofPointsXZ = rasterWidth + 1;
+        _nofPointsY = rasterHeight + 1;
+        _state.Clear(_nofPointsXZ, _nofPointsY);
 
         TryStartNewPipe();
     }
@@ -90,7 +92,7 @@ public class RasterPipesController
         var hue = 2 * MathF.PI * _random.NextSingle();
         for (int _ = 0; _ <= 16; _++)
         {
-            var position = _random.NextVector3i(new Vector3i(XZ, Y, XZ));
+            var position = _random.NextVector3i(new Vector3i(_nofPointsXZ, _nofPointsY, _nofPointsXZ));
             var direction = _random.NextEnum<Direction>();
 
             if (_state.CanStartNewPipeFrom(position, direction))

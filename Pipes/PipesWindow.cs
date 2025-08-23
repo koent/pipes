@@ -20,12 +20,13 @@ public class PipesWindow : GameWindow
     })
     {
         UpdateFrequency = 60;
-        _shadingController = new ShadingController();
+        _shadingController = new ShadingController(RasterHeight);
         _pipesController = new RasterPipesController();
     }
 
     private float _scale = 1.0f;
 
+    private const int RasterHeight = 10;
 
     protected override void OnLoad()
     {
@@ -111,7 +112,8 @@ public class PipesWindow : GameWindow
 
     private void RestartControllers()
     {
-        _pipesController.Restart();
+
+        _pipesController.Restart((int)(RasterHeight * _scale), RasterHeight);
         _shadingController.Restart(_scale);
     }
 

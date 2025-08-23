@@ -7,9 +7,9 @@ using Pipes.Structures;
 
 namespace Pipes.Pipes3D;
 
-public class RasterState(int nofPointsXZ, int nofPointsY)
+public class RasterState
 {
-    private readonly RasterSet _rasterSet = new(nofPointsXZ, nofPointsY, nofPointsXZ);
+    private RasterSet _rasterSet;
 
     private const int MaxNofVerticesAndTriangles = 128 * 1024;
     private const int SpherePrecision = 20;
@@ -31,11 +31,11 @@ public class RasterState(int nofPointsXZ, int nofPointsY)
 
     public bool Started => _vertices.Length > 0;
 
-    public void Clear()
+    public void Clear(int nofPointsXZ, int nofPointsY)
     {
         _vertices.Clear();
         _triangles.Clear();
-        _rasterSet.Clear();
+        _rasterSet = new(nofPointsXZ, nofPointsY, nofPointsXZ);
     }
 
     public IEnumerable<Direction> NewDirections()

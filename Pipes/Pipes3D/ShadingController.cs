@@ -12,9 +12,12 @@ public class ShadingController
     private readonly Random _random = new();
     private readonly Shader _shader = new(Name);
 
-    public ShadingController()
+    private readonly int _rasterHeight;
+
+    public ShadingController(int scaleY)
     {
-        var cameraPosition = new Vector3(0.0f, -0.25f, 5.0f);
+        _rasterHeight = scaleY;
+        var cameraPosition = new Vector3(0.0f, -0.25f, 0.5f * scaleY);
         var view = Matrix4.CreateTranslation(-cameraPosition);
 
         _shader.SetMatrix4("view", view);
@@ -33,15 +36,18 @@ public class ShadingController
         var lightZ = _random.NextSingle();
 
 
-        ResetModel(rotationX, rotationY);
+        ResetModel(scale, rotationX, rotationY);
         ResetProjection(scale);
         ResetLight(lightX, lightY, lightZ);
     }
 
-    private void ResetModel(float rotationX, float rotationY)
+    private void ResetModel(float scale, float rotationX, float rotationY)
     {
-        var model = Matrix4.CreateTranslation(-9, -5, -9)
-                  * Matrix4.CreateScale(1.0f / 5.0f)
+        var halfRasterWidth = 0.5f * (int)(_rasterHeight * scale);
+        var halfRasterHeight = 0.5f * _rasterHeight;
+
+        var model = Matrix4.CreateTranslation(-halfRasterWidth, -halfRasterHeight, -halfRasterWidth)
+                  * Matrix4.CreateScale(1.0f / halfRasterHeight)
                   * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotationY))
                   * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotationX));
 
