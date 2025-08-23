@@ -52,7 +52,20 @@ public class PipesController
         var x = 2 * _random.NextSingle() - 1;
         var y = 2 * _random.NextSingle() - 1;
         var z = 2 * _random.NextSingle() - 1;
-        var direction = _random.NextEnum<Direction>();
+
+        var xAbs = MathF.Abs(x);
+        var yAbs = MathF.Abs(y);
+        var zAbs = MathF.Abs(z);
+
+        var xLargest = yAbs < xAbs && zAbs < xAbs;
+        var yLargest = xAbs < yAbs && zAbs < yAbs;
+
+        var direction = xLargest
+            ? (x > 0 ? Direction.NegX : Direction.PosX)
+            : (yLargest
+                ? (y > 0 ? Direction.NegY : Direction.PosY)
+                : (z > 0 ? Direction.NegZ : Direction.PosZ));
+
         var hue = 2 * MathF.PI * _random.NextSingle();
 
         _state.StartPipe(direction, (x * _scale, y, z * _scale), hue);
