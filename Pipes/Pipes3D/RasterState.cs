@@ -26,7 +26,6 @@ public class RasterState
 
     private Vector3i _position;
     private Color _color;
-    private float _hue;
     private Direction _direction;
 
     public bool Started => _vertices.Length > 0;
@@ -60,18 +59,17 @@ public class RasterState
     public bool CanStartNewPipeFrom(Vector3i position, Direction direction)
         => CanStartPipeFrom(position, direction) && !_rasterSet[position];
 
-    public void StartPipe(Direction direction, Vector3i position, float hue)
+    public void StartPipe(Direction direction, Vector3i? position = null, Color? color = null)
     {
         if (!CanStartPipe()) throw new InvalidOperationException("Not enough space to start a new pipe");
-        if (!CanStartPipeFrom(position, direction)) throw new InvalidOperationException("Cannot start a new pipe");
+        if (!CanStartPipeFrom(position ?? _position, direction)) throw new InvalidOperationException("Cannot start a new pipe");
 
-        _position = position;
+        _position = position ?? _position;
         _rasterSet[_position] = true;
         _direction = direction;
-        _hue = hue;
-        _color = Color.FromHue(hue);
+        _color = color ?? _color;
 
-        AddStartPipes(direction, position);
+        AddStartPipes(direction, _position);
     }
 
     private void AddStartPipes(Direction direction, Vector3i position)
@@ -105,7 +103,7 @@ public class RasterState
         
         CreateSphere(_position, bigSphere ? 1.5f * Radius : Radius);
 
-        StartPipe(newDirection, _position, _hue);
+        StartPipe(newDirection);
     }
 
     public bool CanStep()

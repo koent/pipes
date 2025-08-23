@@ -34,10 +34,7 @@ public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed
 
     public void Clear(float? newScale = null)
     {
-        if (newScale.HasValue)
-        {
-            _scale = newScale.Value;
-        }
+        _scale = newScale ?? _scale;
 
         _vertices.Clear();
         _triangles.Clear();

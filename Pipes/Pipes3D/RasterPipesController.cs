@@ -90,6 +90,9 @@ public class RasterPipesController
     public bool TryStartNewPipe()
     {
         var hue = 2 * MathF.PI * _random.NextSingle();
+        var colorValue = 0.7f + 0.3f * _random.NextSingle();
+        var color = colorValue * Color.FromHue(hue);
+
         for (int _ = 0; _ <= 16; _++)
         {
             var position = _random.NextVector3i(new Vector3i(_nofPointsXZ, _nofPointsY, _nofPointsXZ));
@@ -97,7 +100,7 @@ public class RasterPipesController
 
             if (_state.CanStartNewPipeFrom(position, direction))
             {
-                _state.StartPipe(direction, position, hue);
+                _state.StartPipe(direction, position, color);
                 if (_state.CanStep())
                 {
                     _state.Step(Speed);
