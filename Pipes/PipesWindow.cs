@@ -11,7 +11,11 @@ namespace Pipes;
 
 public class PipesWindow : GameWindow
 {
-    public PipesWindow(PipesController controller) : base(GameWindowSettings.Default, new NativeWindowSettings
+    private readonly PipesController _pipesController;
+    private readonly ShadingController _shadingController;
+    private readonly Shader _shader;
+
+    public PipesWindow() : base(GameWindowSettings.Default, new NativeWindowSettings
     {
         Title = "Pipes",
         ClientSize = (640, 640),
@@ -19,13 +23,10 @@ public class PipesWindow : GameWindow
     })
     {
         UpdateFrequency = 60;
-        _pipesController = controller;
+        _shadingController = new ShadingController();
+        _pipesController = new PipesController();
         _shader = new Shader(PipesController.ShaderName);
     }
-
-    private readonly PipesController _pipesController;
-
-    private readonly Shader _shader;
 
     private float _scale = 1.0f;
 
@@ -66,7 +67,7 @@ public class PipesWindow : GameWindow
         var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), _scale, 0.1f, 100.0f);
         _shader.SetMatrix4("projection", projection);
 
-        var cameraPosition = new Vector3(0.0f, 0.0f, 4.0f);
+        var cameraPosition = new Vector3(0.0f, -0.25f, 4.0f);
         var view = Matrix4.CreateTranslation(-cameraPosition);
         _shader.SetMatrix4("view", view);
         _shader.SetVector3("viewPos", cameraPosition);
@@ -127,9 +128,9 @@ public class PipesWindow : GameWindow
     private void ResetPipes()
     {
         _pipesController.Restart(_scale);
+        _shadingController.Restart();
 
-        var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(37))
-                  * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(5));
+        var model = _shadingController.Model;
         _shader.SetMatrix4("model", model);
 
         var normalModel = model.Inverted().Transposed();
