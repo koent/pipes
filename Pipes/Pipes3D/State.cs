@@ -8,9 +8,9 @@ namespace Pipes.Pipes3D;
 
 public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed)
 {
-    private const int SpherePrecision = 12;
+    private const int SpherePrecision = 20;
 
-    private const int PipePrecision = 12;
+    private const int PipePrecision = 20;
 
     private readonly VertexArray _vertices = new(maxNofVerticesAndTriangles);
     public float[] Vertices => _vertices.Vertices;

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using OpenTK.Mathematics;
 using Pipes.Extensions;
-using Pipes.Structures;
 
 namespace Pipes.Pipes3D;
 
@@ -10,7 +9,7 @@ public class PipesController
 {
     public const string ShaderName = "pipes3d";
 
-    private readonly State _state = new(20000, 0.03f, 0.075f);
+    private readonly State _state = new(64000, 0.03f, 0.075f);
     private readonly Random _random = new();
     private int _turnTimer = 0;
     private float _scale = 1.0f;
