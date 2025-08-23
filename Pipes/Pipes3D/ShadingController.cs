@@ -17,7 +17,7 @@ public class ShadingController
     public ShadingController(int scaleY)
     {
         _rasterHeight = scaleY;
-        var cameraPosition = new Vector3(0.0f, -0.25f, 0.5f * scaleY);
+        var cameraPosition = new Vector3(0.0f, -0.25f, 4.0f);
         var view = Matrix4.CreateTranslation(-cameraPosition);
 
         _shader.SetMatrix4("view", view);
