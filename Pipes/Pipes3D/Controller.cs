@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
 using Pipes.Extensions;
+using Pipes.Structures;
 
 namespace Pipes.Pipes3D;
 
-public class Controller : IPipesController
+public class Controller
 {
     private readonly State _state = new(5000, 0.03f, 0.05f);
     private readonly Random _random = new();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using Pipes.Extensions;
 using Pipes.Structures;
 
 namespace Pipes.Pipes3D;
@@ -11,7 +12,7 @@ public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed
 
     private const int PipePrecision = 12;
 
-    private readonly VertexArray3D _vertices = new(maxNofVerticesAndTriangles);
+    private readonly VertexArray _vertices = new(maxNofVerticesAndTriangles);
     public float[] Vertices => _vertices.Vertices;
     public int VertexArrayLength => _vertices.Length;
 

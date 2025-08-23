@@ -5,12 +5,13 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Pipes.Extensions;
+using Pipes.Pipes3D;
 
 namespace Pipes;
 
 public class PipesWindow : GameWindow
 {
-    public PipesWindow(IPipesController controller) : base(GameWindowSettings.Default, new NativeWindowSettings
+    public PipesWindow(Controller controller) : base(GameWindowSettings.Default, new NativeWindowSettings
     {
         Title = "Pipes",
         ClientSize = (640, 640),
@@ -21,7 +22,7 @@ public class PipesWindow : GameWindow
         _controller = controller;
     }
 
-    private readonly IPipesController _controller;
+    private readonly Controller _controller;
 
     private float _time = 0.0f;
     private float _timeDirection;

@@ -1,3 +1,3 @@
-namespace Pipes.Pipes3D;
+namespace Pipes.Structures;
 
 public enum Direction { PosX, NegX, PosY, NegY, PosZ, NegZ };

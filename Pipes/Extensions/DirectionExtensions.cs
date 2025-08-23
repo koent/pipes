@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using Pipes.Structures;
 
-namespace Pipes.Pipes3D;
+namespace Pipes.Extensions;
 
 public static class DirectionExtensions
 {
