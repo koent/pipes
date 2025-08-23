@@ -4,7 +4,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        using var pipesWindow = new PipesWindow(new Pipes3D.Controller());
+        using var pipesWindow = new PipesWindow(new Pipes3D.PipesController());
         pipesWindow.Run();
     }
 }

@@ -5,8 +5,10 @@ using Pipes.Structures;
 
 namespace Pipes.Pipes3D;
 
-public class Controller
+public class PipesController
 {
+    public const string ShaderName = "pipes3d";
+
     private readonly State _state = new(5000, 0.03f, 0.05f);
     private readonly Random _random = new();
     private int _turnTimer = 0;
@@ -70,7 +72,6 @@ public class Controller
     public int VertexArrayLength => _state.VertexArrayLength;
     public uint[] Indices => _state.Indices;
     public int IndexArrayLength => _state.IndexArrayLength;
-    public string ShaderName => "pipes3d";
     
 
     // bounding box
@@ -78,13 +79,13 @@ public class Controller
 
     // public float[] Vertices => [
     //     -S, -1f, -S,   0f, 0f, 0f,    0f, 0f, 0f,
-    //     -S, -1f,  S,   0f, 0f, 1f,    0f, 0f, 0f,
-    //     -S,  1f, -S,   0f, 1f, 0f,    0f, 0f, 0f,
-    //     -S,  1f,  S,   0f, 1f, 1f,    0f, 0f, 0f,
-    //      S,  1f, -S,   1f, 0f, 0f,    0f, 0f, 0f,
-    //      S,  1f,  S,   1f, 0f, 1f,    0f, 0f, 0f,
-    //      S, -1f, -S,   1f, 1f, 0f,    0f, 0f, 0f,
-    //      S, -1f,  S,   1f, 1f, 1f,    0f, 0f, 0f,
+    //     -S, -1f,  S,   0f, 0f, 2f,    0f, 0f, 0f,
+    //     -S,  1f, -S,   0f, 2f, 0f,    0f, 0f, 0f,
+    //     -S,  1f,  S,   0f, 2f, 2f,    0f, 0f, 0f,
+    //      S,  1f, -S,   2f, 0f, 0f,    0f, 0f, 0f,
+    //      S,  1f,  S,   2f, 0f, 2f,    0f, 0f, 0f,
+    //      S, -1f, -S,   2f, 2f, 0f,    0f, 0f, 0f,
+    //      S, -1f,  S,   2f, 2f, 2f,    0f, 0f, 0f,
     // ];
     // public int VertexArrayLength => 8 * 9;
     // public uint[] Indices => [

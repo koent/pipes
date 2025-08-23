@@ -9,10 +9,10 @@ public class Shader : IDisposable
 {
     public int Handle;
 
-    public Shader(string vertexPath, string fragmentPath)
+    public Shader(string shaderName)
     {
-        var vertexShader = Compile(ShaderType.VertexShader, vertexPath);
-        var fragmentShader = Compile(ShaderType.FragmentShader, fragmentPath);
+        var vertexShader = Compile(ShaderType.VertexShader, $"Shaders/{shaderName}.vert");
+        var fragmentShader = Compile(ShaderType.FragmentShader, $"Shaders/{shaderName}.frag");
 
         Handle = GL.CreateProgram();
 

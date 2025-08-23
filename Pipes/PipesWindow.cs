@@ -11,7 +11,7 @@ namespace Pipes;
 
 public class PipesWindow : GameWindow
 {
-    public PipesWindow(Controller controller) : base(GameWindowSettings.Default, new NativeWindowSettings
+    public PipesWindow(PipesController controller) : base(GameWindowSettings.Default, new NativeWindowSettings
     {
         Title = "Pipes",
         ClientSize = (640, 640),
@@ -19,13 +19,14 @@ public class PipesWindow : GameWindow
     })
     {
         UpdateFrequency = 60;
-        _controller = controller;
+        _pipesController = controller;
+        _shader = new Shader(PipesController.ShaderName);
     }
 
-    private readonly Controller _controller;
+    private readonly PipesController _pipesController;
 
-    private float _time = 0.0f;
-    private float _timeDirection;
+    private readonly Shader _shader;
+
     private float _scale = 1.0f;
 
     private const float fovDegrees = 45.0f;
@@ -34,18 +35,14 @@ public class PipesWindow : GameWindow
     {
         base.OnLoad();
 
-        _controller.Restart(_scale);
-
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         GL.Enable(EnableCap.DepthTest);
         GL.Enable(EnableCap.Multisample);
 
-        _timeDirection = new Random().NextBool() ? -1f : 1f;
-
         VertexBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, _controller.VertexArrayLength * sizeof(float), _controller.Vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
 
         VertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(VertexArrayObject);
@@ -63,25 +60,21 @@ public class PipesWindow : GameWindow
 
         ElementBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, _controller.IndexArrayLength * sizeof(uint), _controller.Indices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
 
-        Shader = new Shader
-        (
-            $"Shaders/{_controller.ShaderName}.vert",
-            $"Shaders/{_controller.ShaderName}.frag"
-        );
 
         var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), _scale, 0.1f, 100.0f);
-        Shader.SetMatrix4("projection", projection);
-
-
+        _shader.SetMatrix4("projection", projection);
 
         var cameraPosition = new Vector3(0.0f, 0.0f, 4.0f);
         var view = Matrix4.CreateTranslation(-cameraPosition);
-        Shader.SetMatrix4("view", view);
-        Shader.SetVector3("viewPos", cameraPosition);
+        _shader.SetMatrix4("view", view);
+        _shader.SetVector3("viewPos", cameraPosition);
 
-        Shader.SetVector3("lightDir", new Vector3(3f, 0f, 3f).Normalized());
+        _shader.SetVector3("lightDir", new Vector3(3f, 0f, 3f).Normalized());
+
+        ResetPipes();
+
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
@@ -90,20 +83,10 @@ public class PipesWindow : GameWindow
 
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-        Shader.Use();
+        _shader.Use();
         GL.BindVertexArray(VertexArrayObject);
-        GL.DrawElements(BeginMode.Triangles, _controller.IndexArrayLength, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(BeginMode.Triangles, _pipesController.IndexArrayLength, DrawElementsType.UnsignedInt, 0);
 
-
-        _time += _timeDirection * 8.0f * (float)args.Time;
-        // var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_time))
-        //           * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30));
-        var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(37))
-                  * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(5));
-        Shader.SetMatrix4("model", model);
-
-        var normalModel = model.Inverted().Transposed();
-        Shader.SetMatrix4("normalModel", normalModel);
 
         SwapBuffers();
     }
@@ -112,13 +95,13 @@ public class PipesWindow : GameWindow
     {
         base.OnUpdateFrame(args);
 
-        _controller.OnUpdateFrame();
+        _pipesController.OnUpdateFrame();
 
         // Console.Write($"\rFPS: {1/args.Time:F2}, Vertex array length: {_controller.VertexArrayLength:D4}, Index array length: {_controller.IndexArrayLength:D4}, {_controller}");
         // Console.Out.Flush();
 
-        GL.BufferData(BufferTarget.ArrayBuffer, _controller.VertexArrayLength * sizeof(float), _controller.Vertices, BufferUsageHint.StaticDraw);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, _controller.IndexArrayLength * sizeof(uint), _controller.Indices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
 
         if (KeyboardState.IsKeyReleased(Keys.Escape))
         {
@@ -127,7 +110,7 @@ public class PipesWindow : GameWindow
         }
         else if (KeyboardState.IsKeyReleased(Keys.R))
         {
-            Reset();
+            ResetPipes();
         }
     }
 
@@ -136,19 +119,24 @@ public class PipesWindow : GameWindow
         base.OnFramebufferResize(args);
         _scale = (float)args.Width / args.Height;
 
-        Reset();
+        ResetPipes();
 
         GL.Viewport(0, 0, args.Width, args.Height);
     }
 
-    private void Reset()
+    private void ResetPipes()
     {
-        _timeDirection = new Random().NextBool() ? -1f : 1f;
+        _pipesController.Restart(_scale);
 
-        _controller.Restart(_scale);
+        var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(37))
+                  * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(5));
+        _shader.SetMatrix4("model", model);
+
+        var normalModel = model.Inverted().Transposed();
+        _shader.SetMatrix4("normalModel", normalModel);
 
         var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), _scale, 0.1f, 100.0f);
-        Shader.SetMatrix4("projection", projection);
+        _shader.SetMatrix4("projection", projection);
     }
 
     private int VertexBufferObject;
@@ -156,6 +144,4 @@ public class PipesWindow : GameWindow
     private int ElementBufferObject;
 
     private int VertexArrayObject;
-
-    private Shader Shader;
 }
