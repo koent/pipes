@@ -9,7 +9,7 @@ namespace Pipes;
 
 public class PipesWindow : GameWindow
 {
-    private readonly PipesController _pipesController;
+    private readonly RasterPipesController _pipesController;
     private readonly ShadingController _shadingController;
 
     public PipesWindow() : base(GameWindowSettings.Default, new NativeWindowSettings
@@ -21,7 +21,7 @@ public class PipesWindow : GameWindow
     {
         UpdateFrequency = 60;
         _shadingController = new ShadingController();
-        _pipesController = new PipesController();
+        _pipesController = new RasterPipesController();
     }
 
     private float _scale = 1.0f;
@@ -111,7 +111,7 @@ public class PipesWindow : GameWindow
 
     private void RestartControllers()
     {
-        _pipesController.Restart(_scale);
+        _pipesController.Restart();
         _shadingController.Restart(_scale);
     }
 

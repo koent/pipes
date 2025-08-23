@@ -14,7 +14,7 @@ public class ShadingController
 
     public ShadingController()
     {
-        var cameraPosition = new Vector3(0.0f, -0.25f, 4.0f);
+        var cameraPosition = new Vector3(0.0f, -0.25f, 5.0f);
         var view = Matrix4.CreateTranslation(-cameraPosition);
 
         _shader.SetMatrix4("view", view);
@@ -40,7 +40,9 @@ public class ShadingController
 
     private void ResetModel(float rotationX, float rotationY)
     {
-        var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotationY))
+        var model = Matrix4.CreateTranslation(-9, -5, -9)
+                  * Matrix4.CreateScale(1.0f / 5.0f)
+                  * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotationY))
                   * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotationX));
 
         var normalModel = model.Inverted().Transposed();
