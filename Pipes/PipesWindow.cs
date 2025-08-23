@@ -1,10 +1,8 @@
 using System;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Pipes.Extensions;
 using Pipes.Pipes3D;
 
 namespace Pipes;
@@ -13,7 +11,6 @@ public class PipesWindow : GameWindow
 {
     private readonly PipesController _pipesController;
     private readonly ShadingController _shadingController;
-    private readonly Shader _shader;
 
     public PipesWindow() : base(GameWindowSettings.Default, new NativeWindowSettings
     {
@@ -25,12 +22,10 @@ public class PipesWindow : GameWindow
         UpdateFrequency = 60;
         _shadingController = new ShadingController();
         _pipesController = new PipesController();
-        _shader = new Shader(PipesController.ShaderName);
     }
 
     private float _scale = 1.0f;
 
-    private const float fovDegrees = 45.0f;
 
     protected override void OnLoad()
     {
@@ -63,19 +58,7 @@ public class PipesWindow : GameWindow
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
         GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
 
-
-        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), _scale, 0.1f, 100.0f);
-        _shader.SetMatrix4("projection", projection);
-
-        var cameraPosition = new Vector3(0.0f, -0.25f, 4.0f);
-        var view = Matrix4.CreateTranslation(-cameraPosition);
-        _shader.SetMatrix4("view", view);
-        _shader.SetVector3("viewPos", cameraPosition);
-
-        _shader.SetVector3("lightDir", new Vector3(3f, 0f, 3f).Normalized());
-
-        ResetPipes();
-
+        RestartControllers();
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
@@ -84,10 +67,9 @@ public class PipesWindow : GameWindow
 
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-        _shader.Use();
+        // _shadingController.UseShader();
         GL.BindVertexArray(VertexArrayObject);
         GL.DrawElements(BeginMode.Triangles, _pipesController.IndexArrayLength, DrawElementsType.UnsignedInt, 0);
-
 
         SwapBuffers();
     }
@@ -96,13 +78,12 @@ public class PipesWindow : GameWindow
     {
         base.OnUpdateFrame(args);
 
-        _pipesController.OnUpdateFrame();
+        var canUpdate = _pipesController.OnUpdateFrame();
+        if (!canUpdate)
+            RestartControllers();
 
         // Console.Write($"\rFPS: {1/args.Time:F2}, Vertex array length: {_controller.VertexArrayLength:D4}, Index array length: {_controller.IndexArrayLength:D4}, {_controller}");
         // Console.Out.Flush();
-
-        GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
 
         if (KeyboardState.IsKeyReleased(Keys.Escape))
         {
@@ -111,8 +92,11 @@ public class PipesWindow : GameWindow
         }
         else if (KeyboardState.IsKeyReleased(Keys.R))
         {
-            ResetPipes();
+            RestartControllers();
         }
+
+        GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs args)
@@ -120,24 +104,15 @@ public class PipesWindow : GameWindow
         base.OnFramebufferResize(args);
         _scale = (float)args.Width / args.Height;
 
-        ResetPipes();
+        RestartControllers();
 
         GL.Viewport(0, 0, args.Width, args.Height);
     }
 
-    private void ResetPipes()
+    private void RestartControllers()
     {
         _pipesController.Restart(_scale);
-        _shadingController.Restart();
-
-        var model = _shadingController.Model;
-        _shader.SetMatrix4("model", model);
-
-        var normalModel = model.Inverted().Transposed();
-        _shader.SetMatrix4("normalModel", normalModel);
-
-        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), _scale, 0.1f, 100.0f);
-        _shader.SetMatrix4("projection", projection);
+        _shadingController.Restart(_scale);
     }
 
     private int VertexBufferObject;

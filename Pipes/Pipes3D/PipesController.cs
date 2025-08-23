@@ -14,16 +14,28 @@ public class PipesController
     private int _turnTimer = 0;
     private float _scale = 1.0f;
 
-    public void OnUpdateFrame()
+    public bool OnUpdateFrame()
     {
         if (_turnTimer >= 8 && _random.NextBool(16))
+        {
+            if (!_state.CanTurn())
+                return false;
+
             RandomTurn();
+        }
 
         if (_state.OutOfBounds)
+        {
+            if (!_state.CanStartPipe())
+                return false;
+
             StartRandomPipe();
+        }
 
         _state.Step();
         _turnTimer++;
+
+        return true;
     }
 
     public void Restart(float scale)
@@ -37,12 +49,6 @@ public class PipesController
 
     private void StartRandomPipe()
     {
-        if (!_state.CanStartPipe())
-        {
-            Restart(_scale);
-            return;
-        }
-
         var x = 2 * _random.NextSingle() - 1;
         var y = 2 * _random.NextSingle() - 1;
         var z = 2 * _random.NextSingle() - 1;
@@ -54,12 +60,6 @@ public class PipesController
 
     private void RandomTurn()
     {
-        if (!_state.CanTurn())
-        {
-            StartRandomPipe();
-            return;
-        }
-
         var bigSphere = _random.NextBool(4);
         var newDirection = _random.NextFromList(_state.TurnDirections.ToList());
 
