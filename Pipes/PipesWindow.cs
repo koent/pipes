@@ -25,6 +25,7 @@ public class PipesWindow : GameWindow
 
     private float _time = 0.0f;
     private float _timeDirection;
+    private float _scale = 1.0f;
 
     private const float fovDegrees = 45.0f;
 
@@ -32,7 +33,7 @@ public class PipesWindow : GameWindow
     {
         base.OnLoad();
 
-        _controller.OnLoad();
+        _controller.Restart(_scale);
 
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -69,7 +70,7 @@ public class PipesWindow : GameWindow
             $"Shaders/{_controller.ShaderName}.frag"
         );
 
-        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), 1f, 0.1f, 100.0f);
+        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), _scale, 0.1f, 100.0f);
         Shader.SetMatrix4("projection", projection);
 
 
@@ -118,25 +119,35 @@ public class PipesWindow : GameWindow
         GL.BufferData(BufferTarget.ArrayBuffer, _controller.VertexArrayLength * sizeof(float), _controller.Vertices, BufferUsageHint.StaticDraw);
         GL.BufferData(BufferTarget.ElementArrayBuffer, _controller.IndexArrayLength * sizeof(uint), _controller.Indices, BufferUsageHint.StaticDraw);
 
-        if (KeyboardState.IsKeyDown(Keys.Escape))
+        if (KeyboardState.IsKeyReleased(Keys.Escape))
         {
             Console.WriteLine();
             Close();
+        }
+        else if (KeyboardState.IsKeyReleased(Keys.R))
+        {
+            Reset();
         }
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs args)
     {
         base.OnFramebufferResize(args);
-        _timeDirection = new Random().NextBool() ? -1f : 1f;
+        _scale = (float)args.Width / args.Height;
 
-        var aspectRatio = (float)args.Width / args.Height;
-        _controller.Restart(aspectRatio);
-
-        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), aspectRatio, 0.1f, 100.0f);
-        Shader.SetMatrix4("projection", projection);
+        Reset();
 
         GL.Viewport(0, 0, args.Width, args.Height);
+    }
+
+    private void Reset()
+    {
+        _timeDirection = new Random().NextBool() ? -1f : 1f;
+
+        _controller.Restart(_scale);
+
+        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovDegrees), _scale, 0.1f, 100.0f);
+        Shader.SetMatrix4("projection", projection);
     }
 
     private int VertexBufferObject;

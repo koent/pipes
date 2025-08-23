@@ -1,19 +1,15 @@
 using System;
+using System.Linq;
 using Pipes.Extensions;
 
 namespace Pipes.Pipes3D;
 
 public class Controller : IPipesController
 {
-    private readonly State _state = new(20000, 0.03f, 0.05f);
+    private readonly State _state = new(5000, 0.03f, 0.05f);
     private readonly Random _random = new();
     private int _turnTimer = 0;
     private float _scale = 1.0f;
-
-    public void OnLoad()
-    {
-        StartRandomPipe();
-    }
 
     public void OnUpdateFrame()
     {
@@ -39,16 +35,18 @@ public class Controller : IPipesController
     private void StartRandomPipe()
     {
         if (!_state.CanStartPipe())
-            _state.Clear();
+        {
+            Restart(_scale);
+            return;
+        }
 
         var x = 2 * _random.NextSingle() - 1;
         var y = 2 * _random.NextSingle() - 1;
         var z = 2 * _random.NextSingle() - 1;
         var direction = _random.NextEnum<Direction>();
         var hue = 2 * MathF.PI * _random.NextSingle();
-        var depth = 0.3f * _random.NextSingle();
 
-        _state.StartPipe(direction, (x * _scale, y, z * _scale), hue, depth);
+        _state.StartPipe(direction, (x * _scale, y, z * _scale), hue);
     }
 
     private void RandomTurn()
@@ -59,10 +57,10 @@ public class Controller : IPipesController
             return;
         }
 
-        var turnDirection = _random.NextEnum<TurnDirection>();
         var bigSphere = _random.NextBool(4);
+        var newDirection = _random.NextFromList(_state.TurnDirections.ToList());
 
-        _state.Turn(turnDirection, bigSphere);
+        _state.Turn(newDirection, bigSphere);
 
         _turnTimer = 0;
     }

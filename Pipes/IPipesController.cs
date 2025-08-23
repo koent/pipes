@@ -2,8 +2,6 @@ namespace Pipes;
 
 public interface IPipesController
 {
-    void OnLoad();
-
     void OnUpdateFrame();
 
     void Restart(float scale);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Pipes.Extensions;
 
@@ -10,6 +11,9 @@ public static class RandomExtensions
     public static TEnum NextEnum<TEnum>(this Random random) where TEnum : struct, Enum
     {
         var values = Enum.GetValues<TEnum>();
-        return values[random.NextInt64() % values.Length];
+        return random.NextFromList(values);
     }
+
+    public static T NextFromList<T>(this Random random, IReadOnlyList<T> list)
+        => list[random.Next() % list.Count];
 }
