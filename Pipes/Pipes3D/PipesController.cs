@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using OpenTK.Mathematics;
 using Pipes.Extensions;
 using Pipes.Structures;
 
@@ -9,14 +10,14 @@ public class PipesController
 {
     public const string ShaderName = "pipes3d";
 
-    private readonly State _state = new(5000, 0.03f, 0.05f);
+    private readonly State _state = new(20000, 0.03f, 0.075f);
     private readonly Random _random = new();
     private int _turnTimer = 0;
     private float _scale = 1.0f;
 
     public bool OnUpdateFrame()
     {
-        if (_turnTimer >= 8 && _random.NextBool(16))
+        if (_turnTimer >= 4 && _random.NextBool(8))
         {
             if (!_state.CanTurn())
                 return false;
@@ -52,29 +53,28 @@ public class PipesController
         var x = 2 * _random.NextSingle() - 1;
         var y = 2 * _random.NextSingle() - 1;
         var z = 2 * _random.NextSingle() - 1;
+        Vector3 position = (x * _scale, y, z * _scale);
 
-        var xAbs = MathF.Abs(x);
-        var yAbs = MathF.Abs(y);
-        var zAbs = MathF.Abs(z);
-
-        var xLargest = yAbs < xAbs && zAbs < xAbs;
-        var yLargest = xAbs < yAbs && zAbs < yAbs;
-
-        var direction = xLargest
-            ? (x > 0 ? Direction.NegX : Direction.PosX)
-            : (yLargest
-                ? (y > 0 ? Direction.NegY : Direction.PosY)
-                : (z > 0 ? Direction.NegZ : Direction.PosZ));
+        var direction = position.DirectionTowardsOrigin();
 
         var hue = 2 * MathF.PI * _random.NextSingle();
 
-        _state.StartPipe(direction, (x * _scale, y, z * _scale), hue);
+        _state.StartPipe(direction, position, hue);
     }
 
     private void RandomTurn()
     {
         var bigSphere = _random.NextBool(4);
-        var newDirection = _random.NextFromList(_state.TurnDirections.ToList());
+
+        var newDirections = _state.TurnDirections.ToList();
+
+        var directionTowardsOrigin = _state.Postition.DirectionTowardsOrigin();
+
+        var nearEdge = MathF.Max(MathF.Max(_state.Postition.X, _state.Postition.Z) / _scale, _state.Postition.Y) > 0.7f;
+
+        var newDirection = newDirections.Contains(directionTowardsOrigin) && nearEdge
+            ? directionTowardsOrigin
+            : _random.NextFromList(newDirections);
 
         _state.Turn(newDirection, bigSphere);
 

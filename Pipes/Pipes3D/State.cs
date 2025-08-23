@@ -29,6 +29,7 @@ public class State(int maxNofVerticesAndTriangles, float pipeRadius, float speed
 
     public IEnumerable<Direction> TurnDirections => _direction.Neighbors();
     public bool OutOfBounds => MathF.Abs(_position.X) > _scale || MathF.Abs(_position.Y) > 1.0f || MathF.Abs(_position.Y) > _scale;
+    public Vector3 Postition => _position;
     private bool Started => _vertices.Length > 0;
 
     public void Clear(float? newScale = null)
