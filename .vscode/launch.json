@@ -12,10 +12,10 @@
         },
         {
             "name": "Launch (Windows)",
-            "cwd": "${workspaceFolder}\\Pipes\\bin\\Debug\\net8.0\\win-x64",
+            "cwd": "${workspaceFolder}\\Pipes\\bin\\Debug\\net8.0",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}\\Pipes\\bin\\Debug\\net8.0\\win-x64\\Pipes.exe",
+            "program": "${workspaceFolder}\\Pipes\\bin\\Debug\\net8.0\\Pipes.exe",
             "console": "integratedTerminal",
             "preLaunchTask": "build"
         }
