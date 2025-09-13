@@ -26,7 +26,7 @@ public class PipesWindow : GameWindow
 
     private float _scale = 1.0f;
 
-    private const int RasterHeight = 10;
+    private const int RasterHeight = 8;
 
     protected override void OnLoad()
     {

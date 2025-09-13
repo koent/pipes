@@ -11,7 +11,7 @@ public class State
 {
     private RasterSet _rasterSet;
 
-    private const int MaxNofVerticesAndTriangles = 128 * 1024;
+    private const int MaxNofVerticesAndTriangles = 64 * 1024;
     private const int SpherePrecision = 20;
     private const int PipePrecision = 20;
     private const float Radius = 0.15f;
