@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Pipes.Pipes3D;
+using Pipes.Screensaver;
 
 namespace Pipes;
 
@@ -12,7 +13,10 @@ public class PipesWindow : GameWindow
     private readonly PipesController _pipesController;
     private readonly ShadingController _shadingController;
 
-    public PipesWindow() : base(GameWindowSettings.Default, new NativeWindowSettings
+    private readonly bool _asScreensaver;
+    private int _allowedMouseMoveEvents = 5; // First few mouse move events may have high delta
+
+    public PipesWindow(ScreensaverOptions options) : base(GameWindowSettings.Default, new NativeWindowSettings
     {
         Title = "Pipes",
         ClientSize = (640, 640),
@@ -20,6 +24,7 @@ public class PipesWindow : GameWindow
     })
     {
         UpdateFrequency = 60;
+        _asScreensaver = options.Option == ScreensaverOption.Screensaver;
         _shadingController = new ShadingController(RasterHeight);
         _pipesController = new PipesController();
     }
@@ -58,6 +63,16 @@ public class PipesWindow : GameWindow
         ElementBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
         GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
+
+
+        if (_asScreensaver)
+        {
+            WindowState = WindowState.Fullscreen;
+            CursorState = CursorState.Hidden;
+
+            KeyUp += _ => Close();
+            MouseMove += MouseMoveClose;
+        }
 
         RestartControllers();
     }
@@ -98,6 +113,15 @@ public class PipesWindow : GameWindow
 
         GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
         GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
+    }
+
+    private void MouseMoveClose(MouseMoveEventArgs e)
+    {
+        if (_allowedMouseMoveEvents == 0 && e.Delta.LengthSquared > 10 * 10)
+            Close();
+     
+        if (_allowedMouseMoveEvents > 0)
+            _allowedMouseMoveEvents--;
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs args)
