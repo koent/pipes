@@ -2,11 +2,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: game Debug",
+            "name": "Launch (Linux)",
             "cwd": "${workspaceFolder}/Pipes/bin/Debug/net8.0/",
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/Pipes/bin/Debug/net8.0/Pipes",
+            "console": "integratedTerminal",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Launch (Windows)",
+            "cwd": "${workspaceFolder}\\Pipes\\bin\\Debug\\net8.0\\win-x64",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}\\Pipes\\bin\\Debug\\net8.0\\win-x64\\Pipes.exe",
             "console": "integratedTerminal",
             "preLaunchTask": "build"
         }
