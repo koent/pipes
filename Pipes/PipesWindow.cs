@@ -20,13 +20,22 @@ public class PipesWindow : GameWindow
     {
         Title = "Pipes",
         ClientSize = (640, 640),
-        NumberOfSamples = 8
+        NumberOfSamples = 8,
+        WindowState = options.Option == ScreensaverOption.Screensaver ? WindowState.Fullscreen : WindowState.Normal,
     })
     {
         UpdateFrequency = 60;
         _asScreensaver = options.Option == ScreensaverOption.Screensaver;
         _shadingController = new ShadingController(RasterHeight);
         _pipesController = new PipesController();
+
+        if (_asScreensaver)
+        {
+            CursorState = CursorState.Hidden;
+
+            KeyUp += _ => Close();
+            MouseMove += MouseMoveClose;
+        }
     }
 
     private float _scale = 1.0f;
@@ -63,16 +72,6 @@ public class PipesWindow : GameWindow
         ElementBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
         GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
-
-
-        if (_asScreensaver)
-        {
-            WindowState = WindowState.Fullscreen;
-            CursorState = CursorState.Hidden;
-
-            KeyUp += _ => Close();
-            MouseMove += MouseMoveClose;
-        }
 
         RestartControllers();
     }
