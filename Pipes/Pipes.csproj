@@ -10,8 +10,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Update="Shaders\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="Shaders\*"/>
   </ItemGroup>
 </Project>

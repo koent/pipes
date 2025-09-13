@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
@@ -7,12 +8,13 @@ namespace Pipes;
 
 public class Shader : IDisposable
 {
+    private readonly Assembly _assembly = typeof(Shader).Assembly;
     public int Handle;
 
     public Shader(string shaderName)
     {
-        var vertexShader = Compile(ShaderType.VertexShader, $"Shaders/{shaderName}.vert");
-        var fragmentShader = Compile(ShaderType.FragmentShader, $"Shaders/{shaderName}.frag");
+        var vertexShader = Compile(ShaderType.VertexShader, $"Pipes.Shaders.{shaderName}.vert");
+        var fragmentShader = Compile(ShaderType.FragmentShader, $"Pipes.Shaders.{shaderName}.frag");
 
         Handle = GL.CreateProgram();
 
@@ -52,9 +54,12 @@ public class Shader : IDisposable
         GL.Uniform3(location, ref vector);
     }
 
-    private static int Compile(ShaderType type, string path)
+    private int Compile(ShaderType type, string resourceName)
     {
-        var shaderSource = File.ReadAllText(path);
+        var stream = _assembly.GetManifestResourceStream(resourceName);
+        using var reader = new StreamReader(stream);
+        var shaderSource = reader.ReadToEnd();
+        
         var shader = GL.CreateShader(type);
         GL.ShaderSource(shader, shaderSource);
 
