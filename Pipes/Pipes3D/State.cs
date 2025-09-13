@@ -7,7 +7,7 @@ using Pipes.Structures;
 
 namespace Pipes.Pipes3D;
 
-public class RasterState
+public class State
 {
     private RasterSet _rasterSet;
 

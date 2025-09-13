@@ -6,7 +6,7 @@ using Pipes.Structures;
 
 namespace Pipes.Pipes3D;
 
-public class RasterPipesController
+public class PipesController
 {
     private int _nofPointsXZ;
     private int _nofPointsY;
@@ -14,7 +14,7 @@ public class RasterPipesController
     private const int SlowdownFactor = 2;
     private const float Speed = 1.0f / SlowdownFactor;
 
-    private readonly RasterState _state = new();
+    private readonly State _state = new();
     private readonly Random _random = new();
 
     private int _time = 0;

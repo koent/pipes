@@ -9,7 +9,7 @@ namespace Pipes;
 
 public class PipesWindow : GameWindow
 {
-    private readonly RasterPipesController _pipesController;
+    private readonly PipesController _pipesController;
     private readonly ShadingController _shadingController;
 
     public PipesWindow() : base(GameWindowSettings.Default, new NativeWindowSettings
@@ -21,7 +21,7 @@ public class PipesWindow : GameWindow
     {
         UpdateFrequency = 60;
         _shadingController = new ShadingController(RasterHeight);
-        _pipesController = new RasterPipesController();
+        _pipesController = new PipesController();
     }
 
     private float _scale = 1.0f;
@@ -83,8 +83,8 @@ public class PipesWindow : GameWindow
         if (!canUpdate)
             RestartControllers();
 
-        // Console.Write($"\rFPS: {1/args.Time:F2}, Vertex array length: {_controller.VertexArrayLength:D4}, Index array length: {_controller.IndexArrayLength:D4}, {_controller}");
-        // Console.Out.Flush();
+        Console.Write($"\rFPS: {1/args.Time:F2}, {args.Time:F3}s");
+        Console.Out.Flush();
 
         if (KeyboardState.IsKeyReleased(Keys.Escape))
         {
