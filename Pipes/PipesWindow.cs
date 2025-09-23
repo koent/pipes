@@ -97,8 +97,8 @@ public class PipesWindow : GameWindow
         if (!canUpdate)
             RestartControllers();
 
-        // Console.Write($"\rFPS: {1/args.Time:F2}, {args.Time:F3}");
-        // Console.Out.Flush();
+        Console.Write($"\rFPS: {1/args.Time:F2}, {args.Time:F3}");
+        Console.Out.Flush();
 
         if (KeyboardState.IsKeyReleased(Keys.Escape))
         {
