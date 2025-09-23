@@ -14,11 +14,13 @@ public class Shader : IDisposable
     public Shader(string shaderName)
     {
         var vertexShader = Compile(ShaderType.VertexShader, $"Pipes.Shaders.{shaderName}.vert");
+        var geometryShader = Compile(ShaderType.GeometryShader, $"Pipes.Shaders.{shaderName}.geom");
         var fragmentShader = Compile(ShaderType.FragmentShader, $"Pipes.Shaders.{shaderName}.frag");
 
         Handle = GL.CreateProgram();
 
         GL.AttachShader(Handle, vertexShader);
+        GL.AttachShader(Handle, geometryShader);
         GL.AttachShader(Handle, fragmentShader);
 
         GL.LinkProgram(Handle);
@@ -30,8 +32,10 @@ public class Shader : IDisposable
         }
 
         GL.DetachShader(Handle, vertexShader);
+        GL.DetachShader(Handle, geometryShader);
         GL.DetachShader(Handle, fragmentShader);
         GL.DeleteShader(vertexShader);
+        GL.DeleteShader(geometryShader);
         GL.DeleteShader(fragmentShader);
     }
 

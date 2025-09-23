@@ -1,7 +1,9 @@
 #version 420 core
-in vec3 vertexColor;
-in vec3 FragPos;
-in vec3 Normal;
+in fragmentData{
+    vec3 color;
+    vec3 normal;
+    vec3 position;
+} fragment;
 
 out vec4 FragColor;
 
@@ -16,12 +18,12 @@ void main()
 
     float ambient = ambientStrength;
 
-    vec3 norm = normalize(Normal);
+    vec3 norm = normalize(fragment.normal);
     float diffuse = diffuseStrength * max(dot(norm, lightDir), 0.0);
 
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewDir = normalize(viewPos - fragment.position);
     vec3 reflectDir = reflect(-lightDir, norm);
     float specular = specularStrength * pow(max(dot(viewDir, reflectDir), 0.0), 16);
 
-    FragColor = vec4((ambient + diffuse + specular) * vertexColor, 1.0);
+    FragColor = vec4((ambient + diffuse + specular) * fragment.color, 1.0);
 }
