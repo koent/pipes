@@ -1,8 +1,8 @@
 #version 420 core
 in fragmentData{
+    vec3 position;
     vec3 color;
     vec3 normal;
-    vec3 position;
 } fragment;
 
 out vec4 FragColor;

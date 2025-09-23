@@ -58,16 +58,21 @@ public class PipesWindow : GameWindow
         VertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(VertexArrayObject);
         // Position
-        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 9 * sizeof(float), 0);
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 10 * sizeof(float), 0);
         GL.EnableVertexAttribArray(0);
 
         // Color
-        GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 9 * sizeof(float), 3 * sizeof(float));
+        GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 10 * sizeof(float), 3 * sizeof(float));
         GL.EnableVertexAttribArray(1);
 
         // Normal
-        GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, 9 * sizeof(float), 6 * sizeof(float));
+        GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, 10 * sizeof(float), 6 * sizeof(float));
         GL.EnableVertexAttribArray(2);
+
+        // Time
+        GL.VertexAttribPointer(3, 1, VertexAttribPointerType.Float, false, 10 * sizeof(float), 9 * sizeof(float));
+        GL.EnableVertexAttribArray(3);
+
 
         ElementBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
