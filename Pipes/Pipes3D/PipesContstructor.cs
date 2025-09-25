@@ -18,7 +18,9 @@ public class PipesConstructor(int width, int height, int depth)
 
     public void Construct()
     {
-        while (true)
+        var nofPipes = _random.NextInt64(4, 8);
+
+        for (int _ = 0; _ < nofPipes; _++)
         {
             var init = FindStart();
             if (init is not (Vector3i position, Direction direction))
@@ -34,6 +36,10 @@ public class PipesConstructor(int width, int height, int depth)
 
         while (true)
         {
+            // 1/256 probability to start over
+            if (_random.NextBool(256))
+                return;
+
             // 3/4 probability to step forward, if possible
             if (!_random.NextBool(4) && CanStep(position, direction))
             {

@@ -46,20 +46,18 @@ public class PipesWindow : GameWindow
 
     private const int RasterHeight = 8;
 
-    protected override void OnLoad()
-    {
-        base.OnLoad();
+    private float _duration = 0;
+    private const float WaitBeforeResetInSeconds = 5;
+    private double _time = 0;
 
-        var pipesConstructor = new PipesConstructor(7, 7, 7);
+    private void ResetConstruction()
+    {
+        Console.WriteLine();
+        var pipesConstructor = new PipesConstructor((int)(RasterHeight * _scale), RasterHeight, (int)(RasterHeight * _scale));
         pipesConstructor.Construct();
         var pipePoints = pipesConstructor.Points.ToList();
 
         Console.WriteLine($"nof points {pipePoints.Count}");
-
-        // List<PipePoint> pipePoints = [
-        //     new PipePoint(new Vector3i(3, 3, 3), JointType.None, new Color(1, 0, 0), Direction.PosX),
-        //     new PipePoint(new Vector3i(5, 5, 5), JointType.None, new Color(0, 1, 0), Direction.PosX)
-        //     ];
 
         var modelConstructor = new ModelConstructor();
         modelConstructor.Construct(pipePoints);
@@ -70,6 +68,20 @@ public class PipesWindow : GameWindow
         Console.WriteLine($"nof indices {indices.Length}");
         Console.WriteLine($"nof seconds {modelConstructor.TotalTime}");
 
+        _time = 0;
+        _indexArrayLength = indices.Length;
+        _duration = modelConstructor.TotalTime;
+        _shadingController.SetTime((float)_time);
+
+        GL.BufferData(BufferTarget.ArrayBuffer, vertexAttributes.Length * sizeof(float), vertexAttributes, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+    }
+
+    protected override void OnLoad()
+    {
+        base.OnLoad();
+
+
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         GL.Enable(EnableCap.DepthTest);
@@ -77,7 +89,6 @@ public class PipesWindow : GameWindow
 
         VertexBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, vertexAttributes.Length * sizeof(float), vertexAttributes, BufferUsageHint.StaticDraw);
 
         VertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(VertexArrayObject);
@@ -100,12 +111,9 @@ public class PipesWindow : GameWindow
 
         ElementBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
 
         RestartControllers();
-        _indexArrayLength = indices.Length;
     }
-
 
     private int _indexArrayLength;
 
@@ -125,7 +133,6 @@ public class PipesWindow : GameWindow
         SwapBuffers();
     }
 
-    private double _time = 0;
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);
@@ -137,8 +144,13 @@ public class PipesWindow : GameWindow
         _shadingController.SetTime((float)_time);
         _time += args.Time;
 
-        Console.Write($"\rFPS: {1 / args.Time:F2}, {args.Time:F3}");
-        Console.Out.Flush();
+        // Console.Write($"\rFPS: {1 / args.Time:F2}, {args.Time:F3}");
+        // Console.Out.Flush();
+
+        if (_time > _duration + WaitBeforeResetInSeconds)
+        {
+            RestartControllers();
+        }
 
         if (KeyboardState.IsKeyReleased(Keys.Escape))
         {
@@ -177,6 +189,7 @@ public class PipesWindow : GameWindow
     {
 
         // _pipesController.Restart((int)(RasterHeight * _scale), RasterHeight);
+        ResetConstruction();
         _shadingController.Restart(_scale);
     }
 

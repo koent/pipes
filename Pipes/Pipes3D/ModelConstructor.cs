@@ -8,7 +8,7 @@ namespace Pipes.Pipes3D;
 
 public class ModelConstructor
 {
-    private const int SlowdownFactor = 3;
+    private const int SlowdownFactor = 2;
     private const int SpherePrecision = 20;
     private const int PipePrecision = 20;
     private const float Radius = 0.15f;
