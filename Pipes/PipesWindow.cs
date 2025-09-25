@@ -1,20 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Pipes.Pipes3D;
 using Pipes.Screensaver;
-using Pipes.Structures;
 
 namespace Pipes;
 
 public class PipesWindow : GameWindow
 {
-    // private readonly PipesController _pipesController;
     private readonly ShadingController _shadingController;
 
     private readonly bool _asScreensaver;
@@ -31,7 +27,6 @@ public class PipesWindow : GameWindow
         UpdateFrequency = 60;
         _asScreensaver = options.Option == ScreensaverOption.Screensaver;
         _shadingController = new ShadingController(RasterHeight);
-        // _pipesController = new PipesController();
 
         if (_asScreensaver)
         {
@@ -123,10 +118,6 @@ public class PipesWindow : GameWindow
 
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-        // Console.Write($"\rFPS: {1 / args.Time:F2}, {args.Time:F3}");
-        // Console.Out.Flush();
-
-        // _shadingController.UseShader();
         GL.BindVertexArray(VertexArrayObject);
         GL.DrawElements(BeginMode.Triangles, _indexArrayLength, DrawElementsType.UnsignedInt, 0);
 
@@ -136,10 +127,6 @@ public class PipesWindow : GameWindow
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);
-
-        // var canUpdate = _pipesController.OnUpdateFrame();
-        // if (!canUpdate)
-        //     RestartControllers();
 
         _shadingController.SetTime((float)_time);
         _time += args.Time;
@@ -161,9 +148,6 @@ public class PipesWindow : GameWindow
         {
             RestartControllers();
         }
-
-        // GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
-        // GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
     }
 
     private void MouseMoveClose(MouseMoveEventArgs e)
@@ -187,8 +171,6 @@ public class PipesWindow : GameWindow
 
     private void RestartControllers()
     {
-
-        // _pipesController.Restart((int)(RasterHeight * _scale), RasterHeight);
         ResetConstruction();
         _shadingController.Restart(_scale);
     }
