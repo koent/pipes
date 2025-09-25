@@ -1,16 +1,20 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Pipes.Pipes3D;
 using Pipes.Screensaver;
+using Pipes.Structures;
 
 namespace Pipes;
 
 public class PipesWindow : GameWindow
 {
-    private readonly PipesController _pipesController;
+    // private readonly PipesController _pipesController;
     private readonly ShadingController _shadingController;
 
     private readonly bool _asScreensaver;
@@ -20,14 +24,14 @@ public class PipesWindow : GameWindow
     {
         Title = "Pipes",
         ClientSize = (640, 640),
-        NumberOfSamples = 8,
+        NumberOfSamples = 4,
         WindowState = options.Option == ScreensaverOption.Screensaver ? WindowState.Fullscreen : WindowState.Normal,
     })
     {
         UpdateFrequency = 60;
         _asScreensaver = options.Option == ScreensaverOption.Screensaver;
         _shadingController = new ShadingController(RasterHeight);
-        _pipesController = new PipesController();
+        // _pipesController = new PipesController();
 
         if (_asScreensaver)
         {
@@ -46,6 +50,26 @@ public class PipesWindow : GameWindow
     {
         base.OnLoad();
 
+        var pipesConstructor = new PipesConstructor(7, 7, 7);
+        pipesConstructor.Construct();
+        var pipePoints = pipesConstructor.Points.ToList();
+
+        Console.WriteLine($"nof points {pipePoints.Count}");
+
+        // List<PipePoint> pipePoints = [
+        //     new PipePoint(new Vector3i(3, 3, 3), JointType.None, new Color(1, 0, 0), Direction.PosX),
+        //     new PipePoint(new Vector3i(5, 5, 5), JointType.None, new Color(0, 1, 0), Direction.PosX)
+        //     ];
+
+        var modelConstructor = new ModelConstructor();
+        modelConstructor.Construct(pipePoints);
+
+        var vertexAttributes = modelConstructor.GetVertexAttributes().ToArray();
+        var indices = modelConstructor.GetIndices().ToArray();
+        Console.WriteLine($"nof vertex attributes {vertexAttributes.Length}");
+        Console.WriteLine($"nof indices {indices.Length}");
+        Console.WriteLine($"nof seconds {modelConstructor.TotalTime}");
+
         GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         GL.Enable(EnableCap.DepthTest);
@@ -53,7 +77,7 @@ public class PipesWindow : GameWindow
 
         VertexBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, vertexAttributes.Length * sizeof(float), vertexAttributes, BufferUsageHint.StaticDraw);
 
         VertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(VertexArrayObject);
@@ -76,10 +100,14 @@ public class PipesWindow : GameWindow
 
         ElementBufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
 
         RestartControllers();
+        _indexArrayLength = indices.Length;
     }
+
+
+    private int _indexArrayLength;
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
@@ -87,22 +115,29 @@ public class PipesWindow : GameWindow
 
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
+        // Console.Write($"\rFPS: {1 / args.Time:F2}, {args.Time:F3}");
+        // Console.Out.Flush();
+
         // _shadingController.UseShader();
         GL.BindVertexArray(VertexArrayObject);
-        GL.DrawElements(BeginMode.Triangles, _pipesController.IndexArrayLength, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(BeginMode.Triangles, _indexArrayLength, DrawElementsType.UnsignedInt, 0);
 
         SwapBuffers();
     }
 
+    private double _time = 0;
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);
 
-        var canUpdate = _pipesController.OnUpdateFrame();
-        if (!canUpdate)
-            RestartControllers();
+        // var canUpdate = _pipesController.OnUpdateFrame();
+        // if (!canUpdate)
+        //     RestartControllers();
 
-        Console.Write($"\rFPS: {1/args.Time:F2}, {args.Time:F3}");
+        _shadingController.SetTime((float)_time);
+        _time += args.Time;
+
+        Console.Write($"\rFPS: {1 / args.Time:F2}, {args.Time:F3}");
         Console.Out.Flush();
 
         if (KeyboardState.IsKeyReleased(Keys.Escape))
@@ -115,8 +150,8 @@ public class PipesWindow : GameWindow
             RestartControllers();
         }
 
-        GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
+        // GL.BufferData(BufferTarget.ArrayBuffer, _pipesController.VertexArrayLength * sizeof(float), _pipesController.Vertices, BufferUsageHint.StaticDraw);
+        // GL.BufferData(BufferTarget.ElementArrayBuffer, _pipesController.IndexArrayLength * sizeof(uint), _pipesController.Indices, BufferUsageHint.StaticDraw);
     }
 
     private void MouseMoveClose(MouseMoveEventArgs e)
@@ -141,7 +176,7 @@ public class PipesWindow : GameWindow
     private void RestartControllers()
     {
 
-        _pipesController.Restart((int)(RasterHeight * _scale), RasterHeight);
+        // _pipesController.Restart((int)(RasterHeight * _scale), RasterHeight);
         _shadingController.Restart(_scale);
     }
 

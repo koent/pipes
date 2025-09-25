@@ -17,9 +17,11 @@ out fragmentData{
     vec3 normal;
 } fragment;
 
+uniform float time;
+
 void main()
 {
-    if (vertices[0].time < 2000.0)
+    if (vertices[0].time < time)
     {
         for (int i = 0; i < gl_in.length(); i++)
         {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
 
 namespace Pipes.Structures;
@@ -18,4 +19,6 @@ public struct Vertex(Vector3 position, Color color, Vector3 normal, float time)
         yield return normal.Z;
         yield return time;
     }
+
+    public override string ToString() => string.Join(' ', GetAttributes().ToList());
 }

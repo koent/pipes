@@ -58,6 +58,13 @@ public class Shader : IDisposable
         GL.Uniform3(location, ref vector);
     }
 
+    public void SetFloat(string name, float value)
+    {
+        GL.UseProgram(Handle);
+        int location = GL.GetUniformLocation(Handle, name);
+        GL.Uniform1(location, value);
+    }
+
     private int Compile(ShaderType type, string resourceName)
     {
         var stream = _assembly.GetManifestResourceStream(resourceName);

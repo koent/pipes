@@ -34,28 +34,34 @@ public class PipesConstructor(int width, int height, int depth)
 
         while (true)
         {
-            // 1/4 probability to turn, if possible
+            // 3/4 probability to step forward, if possible
+            if (!_random.NextBool(4) && CanStep(position, direction))
+            {
+                AddPoint(position, JointType.None, color, direction);
+                position = position.Moved(direction);
+                continue;
+            }
+
+            // Otherwise, try to turn
             var newDirections = NewDirections(position, direction).ToList();
             var turned = false;
-            if (_random.NextBool(4) && newDirections.Count > 0)
+            if (newDirections.Count > 0)
             {
                 direction = _random.NextFromList(newDirections);
                 turned = true;
             }
 
             // step forward, if possible
-            if (CanStep(position, direction))
-            {
-                var jointType = turned
+            if (!CanStep(position, direction))
+                return;
+
+            var jointType = turned
                     ? (_random.NextBool(8) ? JointType.Big : JointType.Small)
                     : JointType.None;
-                AddPoint(position, jointType, color, direction);
-                position = position.Moved(direction);
+            AddPoint(position, jointType, color, direction);
+            position = position.Moved(direction);
 
-                continue;
-            }
-
-            return;
+            continue;
         }
     }
 

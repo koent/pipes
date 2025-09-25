@@ -67,4 +67,9 @@ public class ShadingController
 
         _shader.SetMatrix4("projection", projection);
     }
+
+    public void SetTime(float time)
+    {
+        _shader.SetFloat("time", time);
+    }
 }

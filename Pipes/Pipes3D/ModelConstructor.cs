@@ -8,26 +8,32 @@ namespace Pipes.Pipes3D;
 
 public class ModelConstructor
 {
-    private const int SlowdownFactor = 2;
+    private const int SlowdownFactor = 3;
     private const int SpherePrecision = 20;
     private const int PipePrecision = 20;
     private const float Radius = 0.15f;
+    private const float FPS = 60.0f;
 
-    private readonly List<Vertex> _vertices;
-    private readonly List<(uint First, uint Second, uint Third)> _triangles;
+    private readonly List<Vertex> _vertices = [];
+    private readonly List<(uint, uint, uint)> _triangles = [];
+    private int _nofFrames = 0;
+
+    public float TotalTime => _nofFrames / FPS;
 
     public void Construct(IReadOnlyCollection<PipePoint> points)
     {
         if (points.Count == 0) return;
 
-        var time = 0;
         foreach (var point in points)
         {
-            for (int i = 0; i < SlowdownFactor; i++)
-                CreatePipeSegment(point, (float)i / SlowdownFactor, time++);
-
             if (point.JointType is not JointType.None)
-                CreateSphere(point, time);
+                CreateSphere(point, _nofFrames / FPS);
+
+            for (int i = 0; i < SlowdownFactor; i++)
+            {
+                CreatePipeSegment(point, (float)i / SlowdownFactor, (float)(i + 1) / SlowdownFactor, _nofFrames / FPS);
+                _nofFrames++;
+            }
         }
     }
 
@@ -48,11 +54,11 @@ public class ModelConstructor
         }
     }
 
-    private void CreatePipeSegment(PipePoint point, float offset, float time)
+    private void CreatePipeSegment(PipePoint point, float startoffset, float endoffset, float time)
     {
         var firstVertex = (uint)_vertices.Count;
 
-        var startpoint = point.Position + offset * point.Direction.GetVector();
+        var startpoint = point.Position + startoffset * point.Direction.GetVector();
         for (int i = 0; i < PipePrecision; i++)
         {
             var normal = Matrix3.CreateFromAxisAngle(point.Direction.GetVector(), i * MathF.Tau / PipePrecision)
@@ -62,7 +68,7 @@ public class ModelConstructor
             _vertices.Add(vertex);
         }
 
-        var endpoint = point.Position + (offset + 1) * point.Direction.GetVector();
+        var endpoint = point.Position + endoffset * point.Direction.GetVector();
         for (int i = 0; i < PipePrecision; i++)
         {
             var normal = Matrix3.CreateFromAxisAngle(point.Direction.GetVector(), i * MathF.Tau / PipePrecision)
