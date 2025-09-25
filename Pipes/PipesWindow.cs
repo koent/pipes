@@ -47,21 +47,21 @@ public class PipesWindow : GameWindow
 
     private void ResetConstruction()
     {
-        Console.WriteLine();
         var pipesConstructor = new PipesConstructor((int)(RasterHeight * _scale), RasterHeight, (int)(RasterHeight * _scale));
         pipesConstructor.Construct();
         var pipePoints = pipesConstructor.Points.ToList();
-
-        Console.WriteLine($"nof points {pipePoints.Count}");
 
         var modelConstructor = new ModelConstructor();
         modelConstructor.Construct(pipePoints);
 
         var vertexAttributes = modelConstructor.GetVertexAttributes().ToArray();
         var indices = modelConstructor.GetIndices().ToArray();
-        Console.WriteLine($"nof vertex attributes {vertexAttributes.Length}");
-        Console.WriteLine($"nof indices {indices.Length}");
-        Console.WriteLine($"nof seconds {modelConstructor.TotalTime}");
+
+        // Console.WriteLine();
+        // Console.WriteLine($"nof points {pipePoints.Count}");
+        // Console.WriteLine($"nof vertex attributes {vertexAttributes.Length}");
+        // Console.WriteLine($"nof indices {indices.Length}");
+        // Console.WriteLine($"nof seconds {modelConstructor.TotalTime}");
 
         _time = 0;
         _indexArrayLength = indices.Length;
@@ -141,7 +141,7 @@ public class PipesWindow : GameWindow
 
         if (KeyboardState.IsKeyReleased(Keys.Escape))
         {
-            Console.WriteLine();
+            // Console.WriteLine();
             Close();
         }
         else if (KeyboardState.IsKeyReleased(Keys.R))
